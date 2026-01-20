@@ -50,6 +50,8 @@ class BotApp
     else
       send_help(message.chat.id)
     end
+  rescue StandardError => e
+    warn "Error in handle_message: #{e.class}: #{e.message}"
   end
 
   def handle_callback(query)
@@ -75,6 +77,8 @@ class BotApp
     else
       answer_callback(query, 'Неизвестное действие')
     end
+  rescue StandardError => e
+    warn "Error in handle_callback: #{e.class}: #{e.message}"
   end
 
   def send_welcome(message, user)
@@ -219,7 +223,7 @@ class BotApp
       .where('user_words.last_reviewed_at IS NULL OR (? - user_words.last_reviewed_at) >= (leitner_boxes.repeat_period * interval \'1 day\')', now)
 
     if due.exists?
-      user_word = due.order('RANDOM()').first
+      user_word = due.order(Arel.sql('RANDOM()')).first
       return [user_word.word, user_word]
     end
 
@@ -232,7 +236,7 @@ class BotApp
     fallback = user.user_words.joins(:word).where(words: { pack_id: pack.id }, learned: false)
     return nil unless fallback.exists?
 
-    user_word = fallback.order('RANDOM()').first
+    user_word = fallback.order(Arel.sql('RANDOM()')).first
     [user_word.word, user_word]
   end
 
@@ -251,8 +255,9 @@ class BotApp
     end_time = start_time + 86_400
 
     scope = user.review_events.where(viewed_at: start_time...end_time)
-    total = scope.count
-    correct = scope.where(success: true).count
+    counts = scope.group(:success).count
+    total = counts.values.sum
+    correct = counts[true] || 0
     {
       total: total,
       correct: correct,
@@ -274,7 +279,7 @@ class BotApp
     user.last_name = from.last_name
     user.locale = from.language_code
     user.daily_goal ||= User::DEFAULT_DAILY_GOAL
-    user.save! if user.changed?
+    user.save!
     user
   end
 
