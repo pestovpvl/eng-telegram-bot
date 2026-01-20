@@ -3,11 +3,14 @@ require 'dotenv/load'
 require 'telegram/bot'
 require_relative 'config/environment'
 
-TOKEN = ENV['TELEGRAM_TOKEN'] or abort 'Set TELEGRAM_TOKEN in .env'
+TOKEN = ENV['TELEGRAM_TOKEN']
+abort 'Set TELEGRAM_TOKEN in .env' if TOKEN.to_s.strip.empty?
+abort 'Invalid TELEGRAM_TOKEN format' unless TOKEN =~ /\A\d+:[A-Za-z0-9_-]{10,}\z/
 PROXY = ENV['TG_PROXY']
 
 class BotApp
   PROGRESS_BAR_WIDTH = 10
+  MAX_DAILY_GOAL = 1000
 
   def initialize(bot)
     @bot = bot
@@ -120,7 +123,8 @@ class BotApp
   def handle_goal(message, user)
     parts = message.text.to_s.strip.split
     if parts.length == 2 && parts[1].to_i > 0
-      user.update!(daily_goal: parts[1].to_i)
+      goal = [parts[1].to_i, MAX_DAILY_GOAL].min
+      user.update!(daily_goal: goal)
       @bot.api.send_message(chat_id: message.chat.id, text: "Цель установлена: #{user.daily_goal_value} слов в день")
     else
       @bot.api.send_message(chat_id: message.chat.id, text: "Текущая цель: #{user.daily_goal_value}. Используй /goal 20")
@@ -216,7 +220,7 @@ class BotApp
 
     now = Time.now.utc
     unless ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'
-      raise "Unsupported database adapter: #{ActiveRecord::Base.connection.adapter_name}. PostgreSQL is required."
+      raise "Unsupported database adapter: #{ActiveRecord::Base.connection.adapter_name}. This bot currently supports only PostgreSQL. Please migrate to PostgreSQL and see the README."
     end
 
     due = user.user_words

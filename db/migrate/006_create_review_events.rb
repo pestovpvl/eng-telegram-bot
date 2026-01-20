@@ -1,4 +1,4 @@
-class CreateReviewEvents < ActiveRecord::Migration[7.0]
+class CreateReviewEvents < ActiveRecord::Migration[7.1]
   def change
     create_table :review_events do |t|
       t.references :user, null: false, foreign_key: true

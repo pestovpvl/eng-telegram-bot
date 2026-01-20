@@ -1,4 +1,4 @@
-class CreateWords < ActiveRecord::Migration[7.0]
+class CreateWords < ActiveRecord::Migration[7.1]
   def change
     create_table :words do |t|
       t.references :pack, null: false, foreign_key: true

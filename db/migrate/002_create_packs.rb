@@ -1,4 +1,4 @@
-class CreatePacks < ActiveRecord::Migration[7.0]
+class CreatePacks < ActiveRecord::Migration[7.1]
   def change
     create_table :packs do |t|
       t.string :code, null: false

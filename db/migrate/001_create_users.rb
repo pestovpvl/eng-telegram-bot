@@ -1,4 +1,4 @@
-class CreateUsers < ActiveRecord::Migration[7.0]
+class CreateUsers < ActiveRecord::Migration[7.1]
   def change
     create_table :users do |t|
       t.bigint :telegram_id, null: false

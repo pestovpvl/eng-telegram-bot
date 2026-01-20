@@ -8,8 +8,14 @@ class WordImporter
   end
 
   def import!
-    pack = Pack.find_or_create_by!(code: @pack_code) do |p|
-      p.name = @pack_code
+    begin
+      pack = Pack.find_or_create_by!(code: @pack_code) do |p|
+        p.name = @pack_code
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      errors = e.respond_to?(:record) && e.record.respond_to?(:errors) ? e.record.errors.full_messages.join(', ') : e.message
+      warn "Failed to find or create pack with code '#{@pack_code}': #{errors}"
+      raise
     end
 
     imported = 0

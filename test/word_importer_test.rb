@@ -14,6 +14,7 @@ class WordImporterTest < Minitest::Test
 
     pack = Pack.find_by(code: 'top500')
     assert pack
+    assert_equal 'top500', pack.name
     assert_equal 2, pack.words.count
 
     word = pack.words.find_by(english: 'disrupt')
