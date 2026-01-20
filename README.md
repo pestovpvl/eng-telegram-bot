@@ -57,7 +57,7 @@ Use `bin/generate_audio_from_csv.rb` to create MP3 files for English words in co
 Environment variables:
 - `OPENAI_API_KEY` (required)
 - `OPENAI_TTS_URL` (optional, default OpenAI TTS endpoint)
-- `OPENAI_TTS_MODEL` (default `gpt-4o-mini-tts`)
+- `OPENAI_TTS_MODEL` (default `tts-1`)
 - `OPENAI_TTS_VOICE` (default `alloy`)
 - `AUDIO_OUTPUT_DIR` (default `storage/audio`)
 
@@ -103,6 +103,8 @@ Run tests inside the container:
 ```bash
 docker compose run --rm app bundle exec ruby -Itest test/*_test.rb
 ```
+
+Note: This project expects PostgreSQL (interval arithmetic and random ordering use PostgreSQL syntax).
 
 If tests fail with "database does not exist", recreate the db volume so the init script runs:
 

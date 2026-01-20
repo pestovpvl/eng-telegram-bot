@@ -215,6 +215,10 @@ class BotApp
     user.ensure_leitner_boxes
 
     now = Time.now.utc
+    unless ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'
+      raise "Unsupported database adapter: #{ActiveRecord::Base.connection.adapter_name}. PostgreSQL is required."
+    end
+
     due = user.user_words
       .joins(:word, :leitner_box)
       .where(words: { pack_id: pack.id })
