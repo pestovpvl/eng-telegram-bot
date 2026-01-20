@@ -11,8 +11,6 @@ abort 'TEST_DATABASE_URL is required for tests.' if test_db_url.empty?
 ActiveRecord::Base.establish_connection(test_db_url)
 
 
-conn = ActiveRecord::Base.connection
-
 migrations_path = File.expand_path('../db/migrate', __dir__)
 ActiveRecord::Migration.verbose = false
 

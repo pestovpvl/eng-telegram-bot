@@ -14,13 +14,13 @@ class UserWord < ActiveRecord::Base
   def remember!
     next_box = leitner_box.next_box
     if next_box
-      update!(leitner_box: next_box, last_reviewed_at: Time.now)
+      update!(leitner_box: next_box, last_reviewed_at: Time.now.utc)
     else
-      update!(learned: true, last_reviewed_at: Time.now)
+      update!(learned: true, last_reviewed_at: Time.now.utc)
     end
   end
 
   def forget!
-    update!(leitner_box: LeitnerBox.first_box(user), last_reviewed_at: Time.now)
+    update!(leitner_box: LeitnerBox.first_box(user), last_reviewed_at: Time.now.utc)
   end
 end

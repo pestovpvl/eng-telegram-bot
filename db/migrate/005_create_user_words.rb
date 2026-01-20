@@ -12,5 +12,6 @@ class CreateUserWords < ActiveRecord::Migration[7.0]
     end
 
     add_index :user_words, [:user_id, :word_id], unique: true
+    add_index :user_words, [:last_reviewed_at, :learned]
   end
 end

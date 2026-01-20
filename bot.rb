@@ -201,7 +201,7 @@ class BotApp
 
     success = result == 'correct'
     success ? user_word.remember! : user_word.forget!
-    ReviewEvent.create!(user: user, word: word, success: success, viewed_at: Time.now)
+    ReviewEvent.create!(user: user, word: word, success: success, viewed_at: Time.now.utc)
 
     answer_callback(query, success ? 'Отмечено как правильно' : 'Отмечено как неправильно')
     send_next_card(query.message.chat.id, user)
@@ -210,7 +210,7 @@ class BotApp
   def next_word_for(user, pack)
     user.ensure_leitner_boxes
 
-    now = Time.now
+    now = Time.now.utc
     due = user.user_words
       .joins(:word, :leitner_box)
       .where(words: { pack_id: pack.id })
@@ -246,7 +246,7 @@ class BotApp
   end
 
   def today_stats(user)
-    start_time = Time.now.to_date.to_time
+    start_time = Time.now.utc.to_date.to_time
     end_time = start_time + 86_400
 
     scope = user.review_events.where(viewed_at: start_time...end_time)
@@ -261,7 +261,8 @@ class BotApp
 
   def answer_callback(query, text = nil)
     @bot.api.answer_callback_query(callback_query_id: query.id, text: text, show_alert: false)
-  rescue
+  rescue Telegram::Bot::Exceptions::ResponseError, StandardError => e
+    warn "Failed to answer callback query #{query.id}: #{e.class}: #{e.message}"
     nil
   end
 

@@ -8,5 +8,7 @@ class CreateReviewEvents < ActiveRecord::Migration[7.0]
 
       t.timestamps
     end
+
+    add_index :review_events, [:user_id, :viewed_at]
   end
 end

@@ -33,9 +33,17 @@ class WordImporter
       word.definition = definition if definition && !definition.empty?
 
       if word.new_record?
-        imported += 1 if word.save
+        if word.save
+          imported += 1
+        else
+          warn "Failed to save new word '#{english}' in pack '#{pack.code}': #{word.errors.full_messages.join(', ')}"
+        end
       else
-        updated += 1 if word.save
+        if word.save
+          updated += 1
+        else
+          warn "Failed to update word '#{english}' in pack '#{pack.code}': #{word.errors.full_messages.join(', ')}"
+        end
       end
     end
 
