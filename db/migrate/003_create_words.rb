@@ -10,6 +10,6 @@ class CreateWords < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_index :words, [:pack_id, :english]
+    add_index :words, [:pack_id, :english], unique: true
   end
 end

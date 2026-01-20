@@ -6,9 +6,8 @@ class UserWord < ActiveRecord::Base
   validates :user_id, uniqueness: { scope: :word_id }
 
   def increment_show_count
-    self.show_count ||= 0
-    self.show_count += 1
-    save!
+    new_show_count = (show_count || 0) + 1
+    update!(show_count: new_show_count)
   end
 
   def remember!

@@ -215,6 +215,7 @@ class BotApp
       .joins(:word, :leitner_box)
       .where(words: { pack_id: pack.id })
       .where(learned: false)
+      # NOTE: This uses PostgreSQL interval syntax.
       .where('user_words.last_reviewed_at IS NULL OR (? - user_words.last_reviewed_at) >= (leitner_boxes.repeat_period * interval \'1 day\')', now)
 
     if due.exists?
