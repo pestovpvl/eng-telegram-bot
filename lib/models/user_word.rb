@@ -8,8 +8,7 @@ class UserWord < ActiveRecord::Base
   validates :learned, inclusion: { in: [true, false] }
 
   def increment_show_count
-    new_show_count = show_count + 1
-    update!(show_count: new_show_count)
+    update!(show_count: show_count + 1)
   end
 
   def remember!

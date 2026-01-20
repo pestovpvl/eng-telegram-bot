@@ -21,7 +21,7 @@ class WordImporterTest < Minitest::Test
     assert_equal 'нарушать', word.russian
     assert_equal 'ломать порядок', word.definition
   ensure
-    csv.unlink
+    csv&.unlink
   end
 
   def test_import_updates_existing_word
@@ -39,6 +39,6 @@ class WordImporterTest < Minitest::Test
     assert_equal 'стремиться', word.russian
     assert_equal 'желать', word.definition
   ensure
-    csv.unlink
+    csv&.unlink
   end
 end

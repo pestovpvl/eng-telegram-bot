@@ -105,7 +105,7 @@ class BotApp
   def send_pack_selection(message, user)
     packs = Pack.order(:id).to_a
     if packs.empty?
-      @bot.api.send_message(chat_id: message.chat.id, text: 'Пакеты не найдены. Импортируй слова через rake import:words.')
+      @bot.api.send_message(chat_id: message.chat.id, text: 'Пакеты не найдены. Импортируй слова через: rake import:words[top500,data/words/top500.csv]')
       return
     end
 
