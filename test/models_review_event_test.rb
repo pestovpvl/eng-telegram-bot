@@ -14,4 +14,12 @@ class ModelsReviewEventTest < Minitest::Test
     assert_equal @user, event.user
     assert_equal @word, event.word
   end
+
+  def test_requires_success_and_viewed_at
+    event = ReviewEvent.new(user: @user, word: @word)
+
+    refute event.valid?
+    assert_includes event.errors[:success], "can't be blank"
+    assert_includes event.errors[:viewed_at], "can't be blank"
+  end
 end

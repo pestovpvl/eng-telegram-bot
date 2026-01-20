@@ -3,7 +3,9 @@ class UserWord < ActiveRecord::Base
   belongs_to :word
   belongs_to :leitner_box
 
-  validates :user_id, uniqueness: { scope: :word_id }
+  validates :user_id, presence: true, uniqueness: { scope: :word_id }
+  validates :word_id, :leitner_box_id, :show_count, presence: true
+  validates :learned, inclusion: { in: [true, false] }
 
   def increment_show_count
     new_show_count = (show_count || 0) + 1
