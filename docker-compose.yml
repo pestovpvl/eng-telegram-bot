@@ -23,8 +23,8 @@ services:
     build: .
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/eng_bot_development
-      TEST_DATABASE_URL: postgres://postgres:postgres@db:5432/eng_bot_test
+      DATABASE_URL: ${DATABASE_URL}
+      TEST_DATABASE_URL: ${TEST_DATABASE_URL}
       TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
       TG_PROXY: ${TG_PROXY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}

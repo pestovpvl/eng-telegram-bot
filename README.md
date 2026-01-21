@@ -88,7 +88,7 @@ bundle exec ruby -Itest test/*_test.rb
 
 ## Docker
 
-Run Postgres and the app:
+Run Postgres and the app (ensure `DATABASE_URL` and `TEST_DATABASE_URL` are set in `.env`):
 
 ```bash
 docker compose up --build
