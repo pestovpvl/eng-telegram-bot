@@ -2,7 +2,7 @@ require_relative 'test_helper'
 
 ENV['BOT_DISABLE_RUN'] = '1'
 ENV['DATABASE_URL'] = ENV['TEST_DATABASE_URL']
-ENV['TELEGRAM_TOKEN'] = '123456:abcdefghijklmnopqrstuvwxyzABCDEFGHI'
+ENV['TELEGRAM_TOKEN'] = '123456:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 
 require_relative '../bot'
 

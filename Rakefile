@@ -5,6 +5,8 @@ namespace :db do
   desc 'Run database migrations'
   task :migrate do
     ActiveRecord::Migration.verbose = true
+    ActiveRecord::SchemaMigration.create_table
+    ActiveRecord::InternalMetadata.create_table
     ActiveRecord::MigrationContext.new(
       File.expand_path('db/migrate', __dir__),
       ActiveRecord::SchemaMigration,
