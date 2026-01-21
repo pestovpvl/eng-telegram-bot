@@ -62,7 +62,7 @@ class WordImporter
 
       if row.length < 4
         failed += 1
-        warn "Row has insufficient columns (need at least 4): #{row.inspect}"
+        warn "Row has insufficient columns for expected format (need at least 4 columns: 2 = english, 3 = russian, 4 = optional definition; got #{row.length}): #{row.inspect}"
         next
       end
 
