@@ -55,6 +55,7 @@ class BotApp
     end
   rescue StandardError => e
     warn "Error in handle_message: #{e.class}: #{e.message}"
+    @bot.api.send_message(chat_id: message.chat.id, text: 'Произошла ошибка. Попробуйте позже.')
   end
 
   def handle_callback(query)
@@ -82,6 +83,9 @@ class BotApp
     end
   rescue StandardError => e
     warn "Error in handle_callback: #{e.class}: #{e.message}"
+    if query&.message
+      @bot.api.send_message(chat_id: query.message.chat.id, text: 'Произошла ошибка. Попробуйте позже.')
+    end
   end
 
   def send_welcome(message, user)

@@ -19,7 +19,12 @@ class ModelsReviewEventTest < Minitest::Test
     event = ReviewEvent.new(user: @user, word: @word)
 
     refute event.valid?
-    assert_includes event.errors[:success], "can't be blank"
+    assert_includes event.errors[:success], 'is not included in the list'
     assert_includes event.errors[:viewed_at], "can't be blank"
+  end
+
+  def test_allows_false_success
+    event = ReviewEvent.new(user: @user, word: @word, success: false, viewed_at: Time.now.utc)
+    assert event.valid?
   end
 end

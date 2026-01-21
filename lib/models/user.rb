@@ -6,6 +6,8 @@ class User < ActiveRecord::Base
   belongs_to :current_pack, class_name: 'Pack', optional: true
   belongs_to :current_word, class_name: 'Word', optional: true
 
+  validates :telegram_id, presence: true
+
   DEFAULT_DAILY_GOAL = 20
 
   def ensure_leitner_boxes

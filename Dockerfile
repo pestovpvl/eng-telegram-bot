@@ -4,7 +4,7 @@ RUN apk add --no-cache build-base postgresql-dev tzdata
 
 WORKDIR /app
 
-COPY Gemfile Gemfile.lock* ./
+COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
 COPY . .
