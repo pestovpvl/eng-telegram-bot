@@ -4,6 +4,8 @@ Telegram bot for learning English words with the Leitner spaced repetition syste
 
 ## Setup
 
+PostgreSQL is required (interval arithmetic and random ordering rely on PostgreSQL syntax).
+
 1. Install gems:
 
 ```bash

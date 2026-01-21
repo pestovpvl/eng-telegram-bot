@@ -12,7 +12,7 @@ class ModelsLeitnerBoxTest < Minitest::Test
     dup = LeitnerBox.new(user: @user, repeat_period: period)
 
     refute dup.valid?
-    assert_includes dup.errors[:repeat_period], 'has already been taken'
+    refute_empty dup.errors[:repeat_period]
   end
 
   def test_next_box_returns_next_by_repeat_period

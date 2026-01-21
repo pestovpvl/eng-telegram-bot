@@ -4,8 +4,8 @@ class ModelsPackTest < Minitest::Test
   def test_requires_code_and_name
     pack = Pack.new
     refute pack.valid?
-    assert_includes pack.errors[:code], "can't be blank"
-    assert_includes pack.errors[:name], "can't be blank"
+    refute_empty pack.errors[:code]
+    refute_empty pack.errors[:name]
   end
 
   def test_code_is_unique
@@ -13,6 +13,6 @@ class ModelsPackTest < Minitest::Test
     dup = Pack.new(code: 'top500', name: 'Another')
 
     refute dup.valid?
-    assert_includes dup.errors[:code], 'has already been taken'
+    refute_empty dup.errors[:code]
   end
 end

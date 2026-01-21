@@ -6,7 +6,6 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: eng_bot_development
     # NOTE: Development-only credentials. Use strong secrets in production.
-    # NOTE: Development-only credentials. Use strong secrets in production.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s

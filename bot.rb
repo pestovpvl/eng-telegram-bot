@@ -17,6 +17,7 @@ class BotApp
   end
 
   def run
+    ensure_postgres!
     ensure_default_packs
 
     @bot.listen do |message|
@@ -126,10 +127,15 @@ class BotApp
 
   def handle_goal(message, user)
     parts = message.text.to_s.strip.split
-    if parts.length == 2 && parts[1].to_i > 0
-      goal = [parts[1].to_i, MAX_DAILY_GOAL].min
-      user.update!(daily_goal: goal)
-      @bot.api.send_message(chat_id: message.chat.id, text: "Цель установлена: #{user.daily_goal_value} слов в день")
+    if parts.length == 2
+      value_str = parts[1]
+      if value_str =~ /\A[1-9]\d*\z/
+        goal = [value_str.to_i, MAX_DAILY_GOAL].min
+        user.update!(daily_goal: goal)
+        @bot.api.send_message(chat_id: message.chat.id, text: "Цель установлена: #{user.daily_goal_value} слов в день")
+      else
+        @bot.api.send_message(chat_id: message.chat.id, text: "Некорректное значение цели. Используй /goal N, где N — положительное число до #{MAX_DAILY_GOAL}.")
+      end
     else
       @bot.api.send_message(chat_id: message.chat.id, text: "Текущая цель: #{user.daily_goal_value}. Используй /goal 20")
     end
@@ -227,9 +233,6 @@ class BotApp
     user.ensure_leitner_boxes
 
     now = Time.now.utc
-    unless ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'
-      raise "Unsupported database adapter: #{ActiveRecord::Base.connection.adapter_name}. This bot currently supports only PostgreSQL. Please migrate to PostgreSQL and see the README."
-    end
 
     due = user.user_words
       .joins(:word, :leitner_box)
@@ -296,6 +299,13 @@ class BotApp
   rescue Telegram::Bot::Exceptions::ResponseError => e
     warn "Failed to answer callback query #{query.id}: #{e.class}: #{e.message}"
     nil
+  end
+
+  def ensure_postgres!
+    adapter = ActiveRecord::Base.connection.adapter_name
+    return if adapter == 'PostgreSQL'
+
+    raise "Unsupported database adapter: #{adapter}. This bot currently supports only PostgreSQL. Please migrate to PostgreSQL and see the README."
   end
 
   def find_or_create_user(from)

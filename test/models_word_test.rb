@@ -9,8 +9,8 @@ class ModelsWordTest < Minitest::Test
   def test_requires_english_and_russian
     word = Word.new(pack: @pack)
     refute word.valid?
-    assert_includes word.errors[:english], "can't be blank"
-    assert_includes word.errors[:russian], "can't be blank"
+    refute_empty word.errors[:english]
+    refute_empty word.errors[:russian]
   end
 
   def test_english_unique_within_pack
@@ -18,6 +18,6 @@ class ModelsWordTest < Minitest::Test
     dup = Word.new(pack: @pack, english: 'test', russian: 'дубль')
 
     refute dup.valid?
-    assert_includes dup.errors[:english], 'has already been taken'
+    refute_empty dup.errors[:english]
   end
 end

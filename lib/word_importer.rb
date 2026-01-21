@@ -46,7 +46,15 @@ class WordImporter
                        Word.where(pack: pack, english: english_values.uniq).index_by(&:english)
                      end
 
-    # NOTE: This still saves per-row (no bulk upsert) to keep error reporting simple.
+    # NOTE: This intentionally saves per-row (no bulk upsert) so we can report validation
+    # errors with the exact offending row and word. For the currently expected CSV sizes
+    # (small to medium teaching packs imported infrequently), the per-row overhead is
+    # acceptable and keeps the implementation straightforward.
+    #
+    # If import volume or frequency grows significantly, consider switching to a bulk
+    # insert/upsert strategy (e.g. insert_all / upsert_all or DB-specific bulk APIs),
+    # but be aware that doing so will require a different, coarser-grained approach to
+    # error reporting.
     rows.each do |row|
       next if row.compact.empty?
 

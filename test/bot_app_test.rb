@@ -57,4 +57,12 @@ class BotAppTest < Minitest::Test
     assert_equal User::MAX_DAILY_GOAL, @user.reload.daily_goal
     assert_includes @api.messages.last[:text], User::MAX_DAILY_GOAL.to_s
   end
+
+  def test_handle_goal_invalid_input
+    message = FakeMessage.new('/goal abc', FakeChat.new(1))
+
+    @app.send(:handle_goal, message, @user)
+
+    assert_includes @api.messages.last[:text], 'Некорректное значение цели'
+  end
 end
