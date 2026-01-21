@@ -134,7 +134,7 @@ class BotApp
         user.update!(daily_goal: goal)
         @bot.api.send_message(chat_id: message.chat.id, text: "Цель установлена: #{user.daily_goal_value} слов в день")
       else
-        @bot.api.send_message(chat_id: message.chat.id, text: "Некорректное значение цели. Используй /goal N, где N — положительное число до #{MAX_DAILY_GOAL}.")
+        @bot.api.send_message(chat_id: message.chat.id, text: "Некорректное значение цели. Используй /goal N, где N — целое положительное число без ведущих нулей до #{MAX_DAILY_GOAL}.")
       end
     else
       @bot.api.send_message(chat_id: message.chat.id, text: "Текущая цель: #{user.daily_goal_value}. Используй /goal 20")
@@ -238,10 +238,11 @@ class BotApp
       .joins(:word, :leitner_box)
       .where(words: { pack_id: pack.id })
       .where(learned: false)
-      # NOTE: This uses PostgreSQL interval syntax and RANDOM().
+      # NOTE: This uses PostgreSQL interval syntax.
       .where('user_words.last_reviewed_at IS NULL OR (? - user_words.last_reviewed_at) >= (leitner_boxes.repeat_period * interval \'1 day\')', now)
 
     if due.exists?
+      # NOTE: This uses PostgreSQL RANDOM() via Arel.sql.
       user_word = due.order(Arel.sql('RANDOM()')).first
       return [user_word.word, user_word]
     end
@@ -278,7 +279,8 @@ class BotApp
   end
 
   def today_stats(user)
-    start_time = Time.now.utc.to_date.to_time
+    now = Time.now.utc
+    start_time = Time.utc(now.year, now.month, now.day)
     end_time = start_time + 86_400
 
     scope = user.review_events.where(viewed_at: start_time...end_time)
@@ -305,7 +307,7 @@ class BotApp
     adapter = ActiveRecord::Base.connection.adapter_name
     return if adapter == 'PostgreSQL'
 
-    raise "Unsupported database adapter: #{adapter}. This bot currently supports only PostgreSQL. Please migrate to PostgreSQL and see the README."
+    raise "Unsupported database adapter: #{adapter}. This bot requires PostgreSQL. Please configure DATABASE_URL to point to a PostgreSQL database. See README.md for setup instructions."
   end
 
   def find_or_create_user(from)
@@ -322,11 +324,21 @@ class BotApp
   def ensure_default_packs
     return if Pack.exists?
 
-    Pack.create!(code: 'top500', name: 'Top 500')
-    Pack.create!(code: 'top1000', name: 'Top 1000')
-    Pack.create!(code: 'top2000', name: 'Top 2000')
-    Pack.create!(code: 'function', name: 'Function Words')
-    Pack.create!(code: 'content', name: 'Content Words')
+    default_packs = [
+      { code: 'top500', name: 'Top 500' },
+      { code: 'top1000', name: 'Top 1000' },
+      { code: 'top2000', name: 'Top 2000' },
+      { code: 'function', name: 'Function Words' },
+      { code: 'content', name: 'Content Words' }
+    ]
+
+    default_packs.each do |attrs|
+      Pack.find_or_create_by(code: attrs[:code]) do |pack|
+        pack.name = attrs[:name]
+      end
+    rescue ActiveRecord::ActiveRecordError => e
+      warn "Failed to ensure default pack #{attrs[:code]}: #{e.class}: #{e.message}"
+    end
   end
 end
 

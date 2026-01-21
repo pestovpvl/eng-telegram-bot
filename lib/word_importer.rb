@@ -24,7 +24,7 @@ class WordImporter
 
     rows = []
     begin
-      CSV.foreach(@csv_path, headers: false) { |row| rows << row }
+      CSV.foreach(@csv_path, headers: false, encoding: 'UTF-8') { |row| rows << row }
     rescue CSV::MalformedCSVError, Encoding::InvalidByteSequenceError, ArgumentError => e
       warn "Error while parsing CSV file '#{@csv_path}': #{e.class} - #{e.message}"
       raise
@@ -32,6 +32,8 @@ class WordImporter
 
     english_values = rows.filter_map do |row|
       next if row.compact.empty?
+
+      next if row.length < 4
 
       english = row[2].to_s.strip
       russian = row[3].to_s.strip
@@ -57,6 +59,12 @@ class WordImporter
     # error reporting.
     rows.each do |row|
       next if row.compact.empty?
+
+      if row.length < 4
+        failed += 1
+        warn "Row has insufficient columns (need at least 4): #{row.inspect}"
+        next
+      end
 
       english = row[2].to_s.strip
       russian = row[3].to_s.strip

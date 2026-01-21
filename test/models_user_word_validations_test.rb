@@ -25,4 +25,18 @@ class ModelsUserWordValidationsTest < Minitest::Test
     refute user_word.valid?
     refute_empty user_word.errors[:learned]
   end
+
+  def test_user_word_unique_per_word
+    UserWord.create!(user: @user, word: @word, leitner_box: @box, show_count: 0, learned: false)
+    dup = UserWord.new(user: @user, word: @word, leitner_box: @box, show_count: 0, learned: false)
+
+    refute dup.valid?
+    refute_empty dup.errors[:user_id]
+  end
+
+  def test_show_count_non_negative
+    user_word = UserWord.new(user: @user, word: @word, leitner_box: @box, show_count: -1, learned: false)
+    refute user_word.valid?
+    refute_empty user_word.errors[:show_count]
+  end
 end

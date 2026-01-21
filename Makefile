@@ -1,4 +1,5 @@
 WORDS_DIR ?= data/words
+# Expected filenames: top500.csv, top1000.csv, top2000.csv, function_words*.csv, content_words*.csv.
 
 .PHONY: import-all
 
