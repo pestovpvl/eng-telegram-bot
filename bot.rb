@@ -312,6 +312,8 @@ class BotApp
   end
 end
 
-Telegram::Bot::Client.run(TOKEN, proxy: PROXY) do |bot|
-  BotApp.new(bot).run
+unless ENV['BOT_DISABLE_RUN'] == '1'
+  Telegram::Bot::Client.run(TOKEN, proxy: PROXY) do |bot|
+    BotApp.new(bot).run
+  end
 end
