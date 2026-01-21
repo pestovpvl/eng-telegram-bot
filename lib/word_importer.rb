@@ -24,9 +24,7 @@ class WordImporter
 
     rows = []
     begin
-      CSV.foreach(@csv_path, headers: false) do |row|
-        rows << row
-      end
+      CSV.foreach(@csv_path, headers: false) { |row| rows << row }
     rescue CSV::MalformedCSVError, Encoding::InvalidByteSequenceError, ArgumentError => e
       warn "Error while parsing CSV file '#{@csv_path}': #{e.class} - #{e.message}"
       raise
