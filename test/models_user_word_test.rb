@@ -41,4 +41,13 @@ class ModelsUserWordTest < Minitest::Test
     assert_equal first_box.id, user_word.reload.leitner_box_id
     assert user_word.last_reviewed_at
   end
+
+  def test_increment_show_count
+    box = @user.leitner_boxes.order(:repeat_period).first
+    user_word = UserWord.create!(user: @user, word: @word, leitner_box: box, show_count: 0, learned: false)
+
+    user_word.increment_show_count
+
+    assert_equal 1, user_word.reload.show_count
+  end
 end

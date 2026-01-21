@@ -48,6 +48,7 @@ class WordImporter
                        Word.where(pack: pack, english: english_values.uniq).index_by(&:english)
                      end
 
+    # NOTE: This still saves per-row (no bulk upsert) to keep error reporting simple.
     rows.each do |row|
       next if row.compact.empty?
 

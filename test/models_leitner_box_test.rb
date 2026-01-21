@@ -23,6 +23,11 @@ class ModelsLeitnerBoxTest < Minitest::Test
     assert_equal second, first.next_box
   end
 
+  def test_next_box_returns_nil_for_last_box
+    last = @user.leitner_boxes.order(:repeat_period).last
+    assert_nil last.next_box
+  end
+
   def test_first_box_returns_lowest_repeat_period
     first = @user.leitner_boxes.order(:repeat_period).first
     assert_equal first, LeitnerBox.first_box(@user)

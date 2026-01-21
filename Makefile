@@ -16,5 +16,6 @@ import-all:
 			* ) pack="$$base" ;; \
 		esac; \
 		echo "Importing $$file as $$pack"; \
-		bundle exec rake "import:words[$$pack,$$file]"; \
+		task="import:words[$$pack,$$file]"; \
+		bundle exec rake "$$task"; \
 	done

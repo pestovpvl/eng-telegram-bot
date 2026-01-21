@@ -55,7 +55,7 @@ class BotApp
     end
   rescue StandardError => e
     warn "Error in handle_message: #{e.class}: #{e.message}"
-    @bot.api.send_message(chat_id: message.chat.id, text: 'Произошла ошибка. Попробуйте позже.')
+    @bot.api.send_message(chat_id: message.chat.id, text: 'Произошла непредвиденная ошибка. Попробуйте повторить команду позже. Если проблема сохраняется, отправьте /start.')
   end
 
   def handle_callback(query)
@@ -263,7 +263,7 @@ class BotApp
     goal = user.daily_goal_value.to_i
     return "Прогресс: #{stats[:total]}" if goal <= 0
 
-    filled = [(stats[:total].to_f / goal * PROGRESS_BAR_WIDTH).round, PROGRESS_BAR_WIDTH].min
+    filled = [[(stats[:total].to_f / goal * PROGRESS_BAR_WIDTH).round, 0].max, PROGRESS_BAR_WIDTH].min
     bar = '█' * filled + '░' * (PROGRESS_BAR_WIDTH - filled)
     "Прогресс: #{stats[:total]}/#{goal} #{bar}"
   end
