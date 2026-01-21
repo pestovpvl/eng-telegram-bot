@@ -8,7 +8,9 @@ require_relative '../bot'
 
 class BotAppTest < Minitest::Test
   FakeApi = Struct.new(:messages) do
-    def send_message(**); end
+    def send_message(chat_id:, text:, **)
+      messages << { chat_id: chat_id, text: text }
+    end
     def answer_callback_query(**); end
     def edit_message_text(**); end
   end
@@ -17,9 +19,13 @@ class BotAppTest < Minitest::Test
     def listen; end
   end
 
+  FakeChat = Struct.new(:id)
+  FakeMessage = Struct.new(:text, :chat)
+
   def setup
     super
-    @app = BotApp.new(FakeBot.new(FakeApi.new([])))
+    @api = FakeApi.new([])
+    @app = BotApp.new(FakeBot.new(@api))
     @user = User.create!(telegram_id: 40, username: 'u40', daily_goal: 5)
     @user.ensure_leitner_boxes
     @pack = Pack.create!(code: 'top500', name: 'Top 500')
@@ -41,5 +47,14 @@ class BotAppTest < Minitest::Test
 
     line = @app.send(:progress_line, @user)
     assert_includes line, '2/5'
+  end
+
+  def test_handle_goal_caps_max
+    message = FakeMessage.new('/goal 9999', FakeChat.new(1))
+
+    @app.send(:handle_goal, message, @user)
+
+    assert_equal BotApp::MAX_DAILY_GOAL, @user.reload.daily_goal
+    assert_includes @api.messages.last[:text], BotApp::MAX_DAILY_GOAL.to_s
   end
 end

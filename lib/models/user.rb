@@ -6,7 +6,7 @@ class User < ActiveRecord::Base
   belongs_to :current_pack, class_name: 'Pack', optional: true
   belongs_to :current_word, class_name: 'Word', optional: true
 
-  validates :telegram_id, presence: true
+  validates :telegram_id, presence: true, uniqueness: true
   validates :daily_goal, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 1000 }, allow_nil: true
 
   DEFAULT_DAILY_GOAL = 20

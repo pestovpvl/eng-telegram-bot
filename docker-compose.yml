@@ -5,6 +5,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: eng_bot_development
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     ports:
       - "5432:5432"
     # Exposes PostgreSQL to the host for local development. In production, use a different
@@ -15,6 +20,7 @@ services:
 
   app:
     build: .
+    restart: unless-stopped
     environment:
       DATABASE_URL: postgres://postgres:postgres@db:5432/eng_bot_development
       TEST_DATABASE_URL: postgres://postgres:postgres@db:5432/eng_bot_test
@@ -26,7 +32,8 @@ services:
       OPENAI_TTS_VOICE: ${OPENAI_TTS_VOICE}
       AUDIO_OUTPUT_DIR: ${AUDIO_OUTPUT_DIR}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - .:/app
 
