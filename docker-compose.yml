@@ -7,6 +7,7 @@ services:
       POSTGRES_DB: eng_bot_development
     ports:
       - "5432:5432"
+    # Expose PostgreSQL port to the host for local development only.
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/init:/docker-entrypoint-initdb.d

@@ -21,6 +21,7 @@ class WordImporter
     imported = 0
     updated = 0
     skipped = 0
+    failed = 0
 
     begin
       CSV.foreach(@csv_path, headers: false) do |row|
@@ -43,12 +44,14 @@ class WordImporter
           if word.save
             imported += 1
           else
+            failed += 1
             warn "Failed to save new word '#{english}' in pack '#{pack.code}': #{word.errors.full_messages.join(', ')}"
           end
         else
           if word.save
             updated += 1
           else
+            failed += 1
             warn "Failed to update word '#{english}' in pack '#{pack.code}': #{word.errors.full_messages.join(', ')}"
           end
         end
@@ -58,6 +61,6 @@ class WordImporter
       raise
     end
 
-    puts "Imported: #{imported}, updated: #{updated}, skipped: #{skipped}"
+    warn "Imported: #{imported}, updated: #{updated}, skipped: #{skipped}, failed: #{failed}"
   end
 end

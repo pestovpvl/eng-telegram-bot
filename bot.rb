@@ -5,7 +5,7 @@ require_relative 'config/environment'
 
 TOKEN = ENV['TELEGRAM_TOKEN']
 abort 'Set TELEGRAM_TOKEN in .env' if TOKEN.to_s.strip.empty?
-abort 'Invalid TELEGRAM_TOKEN format' unless TOKEN =~ /\A\d+:[A-Za-z0-9_-]{10,}\z/
+abort 'Invalid TELEGRAM_TOKEN format' unless TOKEN =~ /\A\d+:[A-Za-z0-9_-]{35}\z/
 PROXY = ENV['TG_PROXY']
 
 class BotApp
@@ -159,7 +159,7 @@ class BotApp
 
     word, user_word = next_word_for(user, pack)
     unless word
-      @bot.api.send_message(chat_id: chat_id, text: 'Нет слов для изучения в этом наборе')
+      @bot.api.send_message(chat_id: chat_id, text: 'Нет слов для изучения в этом наборе. Импортируйте слова, например: rake import:words[top500,data/words/top500.csv]')
       return
     end
 
@@ -207,8 +207,12 @@ class BotApp
     word = Word.find_by(id: word_id.to_i)
     return answer_callback(query, 'Слово не найдено') unless word
 
-    user_word = UserWord.find_or_create_by!(user: user, word: word) do |uw|
-      uw.leitner_box = LeitnerBox.first_box(user)
+    begin
+      user_word = UserWord.find_or_create_by!(user: user, word: word) do |uw|
+        uw.leitner_box = LeitnerBox.first_box(user)
+      end
+    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
+      return answer_callback(query, 'Не удалось сохранить прогресс, попробуйте ещё раз')
     end
 
     success = result == 'correct'
@@ -239,7 +243,9 @@ class BotApp
       return [user_word.word, user_word]
     end
 
-    unseen = Word.where(pack: pack).where.not(id: user.user_words.select(:word_id))
+    unseen = Word.where(pack: pack)
+                 .where.not(id: user.user_words.select(:word_id))
+                 .order(:id)
     if (new_word = unseen.first)
       user_word = UserWord.create!(user: user, word: new_word, leitner_box: LeitnerBox.first_box(user))
       return [new_word, user_word]

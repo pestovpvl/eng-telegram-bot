@@ -5,6 +5,7 @@ class UserWord < ActiveRecord::Base
 
   validates :user_id, presence: true, uniqueness: { scope: :word_id }
   validates :word_id, :leitner_box_id, :show_count, presence: true
+  validates :show_count, numericality: { greater_than_or_equal_to: 0 }
   validates :learned, inclusion: { in: [true, false] }
 
   def increment_show_count
