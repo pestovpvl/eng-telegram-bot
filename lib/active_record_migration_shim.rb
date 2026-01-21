@@ -22,7 +22,7 @@ module ActiveRecordMigrationShim
       end
 
       if table == 'schema_migrations'
-        conn.add_index table, :version, unique: true, name: 'unique_schema_migrations'
+        conn.add_index table, :version, unique: true, name: 'index_schema_migrations_on_version'
       else
         conn.add_index table, :key, unique: true, name: 'index_ar_internal_metadata_on_key'
       end

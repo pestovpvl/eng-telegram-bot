@@ -109,7 +109,7 @@ class BotApp
   def send_pack_selection(message, user)
     packs = Pack.order(:id).to_a
     if packs.empty?
-      @bot.api.send_message(chat_id: message.chat.id, text: 'Пакеты не найдены. Импортируй слова через: rake import:words[top500,data/words/top500.csv]')
+      @bot.api.send_message(chat_id: message.chat.id, text: 'Пакеты не найдены. Попроси администратора добавить наборы слов и попробуй ещё раз позже.')
       return
     end
 
@@ -159,7 +159,7 @@ class BotApp
 
     word, user_word = next_word_for(user, pack)
     unless word
-      @bot.api.send_message(chat_id: chat_id, text: 'Нет слов для изучения в этом наборе. Импортируйте слова, например: rake import:words[top500,data/words/top500.csv]')
+      @bot.api.send_message(chat_id: chat_id, text: 'Нет слов для изучения в этом наборе. Попроси администратора добавить слова и попробуй ещё раз позже.')
       return
     end
 
@@ -211,7 +211,7 @@ class BotApp
       user_word = UserWord.find_or_create_by!(user: user, word: word) do |uw|
         uw.leitner_box = LeitnerBox.first_box(user)
       end
-    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique
+    rescue ActiveRecord::RecordInvalid
       return answer_callback(query, 'Не удалось сохранить прогресс, попробуйте ещё раз')
     end
 

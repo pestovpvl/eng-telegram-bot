@@ -13,8 +13,7 @@ class WordImporter
         p.name = @pack_code
       end
     rescue ActiveRecord::RecordInvalid => e
-      errors = e.respond_to?(:record) && e.record.respond_to?(:errors) ? e.record.errors.full_messages.join(', ') : e.message
-      warn "Failed to find or create pack with code '#{@pack_code}': #{errors}"
+      warn "Failed to find or create pack with code '#{@pack_code}': #{e.message}"
       raise
     end
 
@@ -38,7 +37,7 @@ class WordImporter
 
         word = Word.find_or_initialize_by(pack: pack, english: english)
         word.russian = russian
-        word.definition = definition if definition && !definition.empty?
+        word.definition = definition.nil? || definition.empty? ? nil : definition
 
         if word.new_record?
           if word.save

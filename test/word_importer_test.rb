@@ -36,6 +36,7 @@ class WordImporterTest < Minitest::Test
     importer.import!
 
     word = pack.words.find_by(english: 'aspire')
+    assert_equal 1, pack.words.count
     assert_equal 'стремиться', word.russian
     assert_equal 'желать', word.definition
   ensure
