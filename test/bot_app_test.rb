@@ -54,7 +54,7 @@ class BotAppTest < Minitest::Test
 
     @app.send(:handle_goal, message, @user)
 
-    assert_equal BotApp::MAX_DAILY_GOAL, @user.reload.daily_goal
-    assert_includes @api.messages.last[:text], BotApp::MAX_DAILY_GOAL.to_s
+    assert_equal User::MAX_DAILY_GOAL, @user.reload.daily_goal
+    assert_includes @api.messages.last[:text], User::MAX_DAILY_GOAL.to_s
   end
 end

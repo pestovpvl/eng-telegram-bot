@@ -7,9 +7,10 @@ class User < ActiveRecord::Base
   belongs_to :current_word, class_name: 'Word', optional: true
 
   validates :telegram_id, presence: true, uniqueness: true
-  validates :daily_goal, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 1000 }, allow_nil: true
-
   DEFAULT_DAILY_GOAL = 20
+  MAX_DAILY_GOAL = 1000
+
+  validates :daily_goal, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: MAX_DAILY_GOAL }, allow_nil: true
 
   def ensure_leitner_boxes
     return if leitner_boxes.exists?

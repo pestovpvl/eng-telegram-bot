@@ -82,6 +82,6 @@ class WordImporter
       end
     end
 
-    warn "Imported: #{imported}, updated: #{updated}, skipped: #{skipped}, failed: #{failed}"
+    puts "Imported: #{imported}, updated: #{updated}, skipped: #{skipped}, failed: #{failed}"
   end
 end

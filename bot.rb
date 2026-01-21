@@ -10,7 +10,7 @@ PROXY = ENV['TG_PROXY']
 
 class BotApp
   PROGRESS_BAR_WIDTH = 10
-  MAX_DAILY_GOAL = 1000
+  MAX_DAILY_GOAL = User::MAX_DAILY_GOAL
 
   def initialize(bot)
     @bot = bot
@@ -53,7 +53,7 @@ class BotApp
     else
       send_help(message.chat.id)
     end
-  rescue StandardError => e
+  rescue Telegram::Bot::Exceptions::ResponseError, ActiveRecord::ActiveRecordError => e
     warn "Error in handle_message: #{e.class}: #{e.message}"
     @bot.api.send_message(chat_id: message.chat.id, text: 'Произошла непредвиденная ошибка. Попробуйте повторить команду позже. Если проблема сохраняется, отправьте /start.')
   end
@@ -81,7 +81,7 @@ class BotApp
     else
       answer_callback(query, 'Неизвестное действие')
     end
-  rescue StandardError => e
+  rescue Telegram::Bot::Exceptions::ResponseError, ActiveRecord::ActiveRecordError => e
     warn "Error in handle_callback: #{e.class}: #{e.message}"
     if query&.message
       @bot.api.send_message(chat_id: query.message.chat.id, text: 'Произошла ошибка. Попробуйте позже.')
@@ -247,7 +247,13 @@ class BotApp
                  .where.not(id: user.user_words.select(:word_id))
                  .order(:id)
     if (new_word = unseen.first)
-      user_word = UserWord.create!(user: user, word: new_word, leitner_box: LeitnerBox.first_box(user))
+      user_word = UserWord.create!(
+        user: user,
+        word: new_word,
+        leitner_box: LeitnerBox.first_box(user),
+        show_count: 0,
+        learned: false
+      )
       return [new_word, user_word]
     end
 
@@ -283,9 +289,11 @@ class BotApp
     }
   end
 
+  # Answers a callback query.
+  # Returns nil and logs a warning if the Telegram API responds with an error.
   def answer_callback(query, text = nil)
     @bot.api.answer_callback_query(callback_query_id: query.id, text: text, show_alert: false)
-  rescue Telegram::Bot::Exceptions::ResponseError, StandardError => e
+  rescue Telegram::Bot::Exceptions::ResponseError => e
     warn "Failed to answer callback query #{query.id}: #{e.class}: #{e.message}"
     nil
   end

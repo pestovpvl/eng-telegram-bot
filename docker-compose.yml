@@ -10,10 +10,10 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
-    ports:
-      - "5432:5432"
-    # Exposes PostgreSQL to the host for local development. In production, use a different
-    # compose file or an override to remove this ports mapping.
+    # NOTE: PostgreSQL is **not** exposed to the host by default for security reasons.
+    # For local development, add a docker-compose.override.yml with:
+    # ports:
+    #   - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/init:/docker-entrypoint-initdb.d
