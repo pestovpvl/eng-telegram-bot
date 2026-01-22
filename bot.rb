@@ -137,12 +137,12 @@ class BotApp
     parts = message.text.to_s.strip.split
     if parts.length == 2
       value_str = parts[1]
-      if value_str =~ /\A[1-9]\d*\z/
+      if value_str =~ /\A\d+\z/
         goal = [value_str.to_i, MAX_DAILY_GOAL].min
         user.update!(daily_goal: goal)
         @bot.api.send_message(chat_id: message.chat.id, text: "Цель установлена: #{user.daily_goal_value} слов в день")
       else
-        @bot.api.send_message(chat_id: message.chat.id, text: "Некорректное значение цели. Используй /goal N, где N — целое положительное число без ведущих нулей до #{MAX_DAILY_GOAL}.")
+        @bot.api.send_message(chat_id: message.chat.id, text: "Некорректное значение цели. Используй /goal N, где N — целое число от 0 до #{MAX_DAILY_GOAL}.")
       end
     else
       @bot.api.send_message(chat_id: message.chat.id, text: "Текущая цель: #{user.daily_goal_value}. Используй /goal 20")

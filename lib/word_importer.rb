@@ -99,7 +99,7 @@ class WordImporter
           warn "Failed to update word '#{english}' in pack '#{pack.code}': #{word.errors.full_messages.join(', ')}"
         end
       else
-        updated += 1
+        skipped += 1
       end
     end
 
