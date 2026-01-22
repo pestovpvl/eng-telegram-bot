@@ -1,0 +1,6 @@
+/.env
+/.DS_Store
+/data/words/
+/storage/audio/
+/vendor/bundle/
+/test.sqlite3
