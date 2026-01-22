@@ -12,7 +12,8 @@ class UserWord < ActiveRecord::Base
     update!(show_count: show_count + 1)
   end
 
-  def remember!(reviewed_at = Time.now.utc)
+  def remember!(reviewed_at = nil)
+    reviewed_at ||= Time.now.utc
     next_box = leitner_box.next_box
     if next_box
       update!(leitner_box: next_box, last_reviewed_at: reviewed_at)
@@ -21,7 +22,8 @@ class UserWord < ActiveRecord::Base
     end
   end
 
-  def forget!(reviewed_at = Time.now.utc)
+  def forget!(reviewed_at = nil)
+    reviewed_at ||= Time.now.utc
     update!(leitner_box: LeitnerBox.first_box(user), last_reviewed_at: reviewed_at)
   end
 end

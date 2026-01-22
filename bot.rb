@@ -150,7 +150,7 @@ class BotApp
       else
         @bot.api.send_message(
           chat_id: message.chat.id,
-          text: "Некорректное значение цели. Используй /goal N, где N — целое число не меньше 0 (0 допускается) и не больше #{MAX_DAILY_GOAL}."
+          text: "Некорректное значение цели. Используй /goal N, где N — целое число от 0 до #{MAX_DAILY_GOAL}."
         )
       end
     else
