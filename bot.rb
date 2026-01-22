@@ -251,7 +251,6 @@ class BotApp
 
   def next_word_for(user, pack)
     user.ensure_leitner_boxes
-    ensure_postgres!
 
     now = Time.now.utc
 
