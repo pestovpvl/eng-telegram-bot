@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
   DEFAULT_DAILY_GOAL = 20
   MAX_DAILY_GOAL = 1000
 
-  validates :daily_goal, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: MAX_DAILY_GOAL }, allow_nil: true
+  validates :daily_goal, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: MAX_DAILY_GOAL }, allow_nil: true
 
   def ensure_leitner_boxes
     return if leitner_boxes.exists?

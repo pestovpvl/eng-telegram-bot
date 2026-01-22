@@ -22,6 +22,7 @@ class WordImporter
     skipped = 0
     failed = 0
 
+    # NOTE: We read rows into memory so we can pre-load existing words for comparison.
     rows = []
     begin
       CSV.foreach(@csv_path, headers: false, encoding: 'UTF-8') { |row| rows << row }
@@ -90,13 +91,15 @@ class WordImporter
           failed += 1
           warn "Failed to save new word '#{english}' in pack '#{pack.code}': #{word.errors.full_messages.join(', ')}"
         end
-      else
+      elsif word.changed?
         if word.save
           updated += 1
         else
           failed += 1
           warn "Failed to update word '#{english}' in pack '#{pack.code}': #{word.errors.full_messages.join(', ')}"
         end
+      else
+        updated += 1
       end
     end
 

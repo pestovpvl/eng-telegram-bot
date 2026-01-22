@@ -54,7 +54,11 @@ class BotApp
     else
       send_help(message.chat.id)
     end
-  rescue Telegram::Bot::Exceptions::ResponseError, ActiveRecord::ActiveRecordError => e
+  rescue Telegram::Bot::Exceptions::ResponseError,
+         ActiveRecord::RecordInvalid,
+         ActiveRecord::RecordNotFound,
+         ActiveRecord::StatementInvalid,
+         ActiveRecord::ConnectionNotEstablished => e
     warn "Error in handle_message: #{e.class}: #{e.message}"
     @bot.api.send_message(chat_id: message.chat.id, text: 'Произошла непредвиденная ошибка. Попробуйте повторить команду позже. Если проблема сохраняется, отправьте /start.')
   end
@@ -82,7 +86,11 @@ class BotApp
     else
       answer_callback(query, 'Неизвестное действие')
     end
-  rescue Telegram::Bot::Exceptions::ResponseError, ActiveRecord::ActiveRecordError => e
+  rescue Telegram::Bot::Exceptions::ResponseError,
+         ActiveRecord::RecordInvalid,
+         ActiveRecord::RecordNotFound,
+         ActiveRecord::StatementInvalid,
+         ActiveRecord::ConnectionNotEstablished => e
     warn "Error in handle_callback: #{e.class}: #{e.message}"
     if query&.message
       @bot.api.send_message(chat_id: query.message.chat.id, text: 'Произошла ошибка. Попробуйте позже.')
@@ -213,10 +221,12 @@ class BotApp
     word = Word.find_by(id: word_id.to_i)
     return answer_callback(query, 'Слово не найдено') unless word
 
-    begin
-      user_word = UserWord.find_or_create_by!(user: user, word: word) do |uw|
+    user_word = begin
+      UserWord.find_or_create_by!(user: user, word: word) do |uw|
         uw.leitner_box = LeitnerBox.first_box(user)
       end
+    rescue ActiveRecord::RecordNotUnique
+      UserWord.find_by!(user: user, word: word)
     rescue ActiveRecord::RecordInvalid
       return answer_callback(query, 'Не удалось сохранить прогресс, попробуйте ещё раз')
     end
@@ -312,12 +322,14 @@ class BotApp
 
   def find_or_create_user(from)
     user = User.find_or_initialize_by(telegram_id: from.id)
-    user.username = from.username
-    user.first_name = from.first_name
-    user.last_name = from.last_name
-    user.locale = from.language_code
-    user.daily_goal ||= User::DEFAULT_DAILY_GOAL
-    user.save!
+    user.assign_attributes(
+      username: from.username,
+      first_name: from.first_name,
+      last_name: from.last_name,
+      locale: from.language_code
+    )
+    user.daily_goal = User::DEFAULT_DAILY_GOAL if user.new_record? && user.daily_goal.nil?
+    user.save! if user.changed?
     user
   end
 
