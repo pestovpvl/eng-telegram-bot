@@ -16,9 +16,9 @@ class ModelsLeitnerBoxTest < Minitest::Test
   end
 
   def test_repeat_period_presence_and_positive
-    missing = LeitnerBox.new(user: @user, repeat_period: nil)
-    refute missing.valid?
-    refute_empty missing.errors[:repeat_period]
+    box_without_period = LeitnerBox.new(user: @user, repeat_period: nil)
+    refute box_without_period.valid?
+    refute_empty box_without_period.errors[:repeat_period]
 
     zero = LeitnerBox.new(user: @user, repeat_period: 0)
     refute zero.valid?

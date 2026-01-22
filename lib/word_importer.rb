@@ -26,12 +26,20 @@ class WordImporter
     rows = []
     begin
       CSV.foreach(@csv_path, headers: false, encoding: 'UTF-8') { |row| rows << row }
-    rescue CSV::MalformedCSVError,
-           Encoding::InvalidByteSequenceError,
-           ArgumentError,
-           Errno::ENOENT,
-           Errno::EACCES => e
-      warn "Error while parsing CSV file '#{@csv_path}': #{e.class} - #{e.message}"
+    rescue Errno::ENOENT => e
+      warn "CSV file not found at '#{@csv_path}': #{e.message}"
+      raise
+    rescue Errno::EACCES => e
+      warn "Permission denied when reading CSV file '#{@csv_path}': #{e.message}"
+      raise
+    rescue CSV::MalformedCSVError => e
+      warn "Malformed CSV file '#{@csv_path}': #{e.message}"
+      raise
+    rescue Encoding::InvalidByteSequenceError => e
+      warn "Invalid byte sequence in CSV file '#{@csv_path}' (expected UTF-8): #{e.message}"
+      raise
+    rescue ArgumentError => e
+      warn "Error while parsing CSV file '#{@csv_path}': #{e.message}"
       raise
     end
 

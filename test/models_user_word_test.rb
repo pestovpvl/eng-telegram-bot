@@ -50,4 +50,16 @@ class ModelsUserWordTest < Minitest::Test
 
     assert_equal 1, user_word.reload.show_count
   end
+
+  def test_remember_and_forget_use_provided_timestamp
+    box = @user.leitner_boxes.order(:repeat_period).first
+    user_word = UserWord.create!(user: @user, word: @word, leitner_box: box, show_count: 0, learned: false)
+    reviewed_at = Time.utc(2025, 1, 1, 12, 0, 0)
+
+    user_word.remember!(reviewed_at)
+    assert_equal reviewed_at, user_word.reload.last_reviewed_at
+
+    user_word.forget!(reviewed_at)
+    assert_equal reviewed_at, user_word.reload.last_reviewed_at
+  end
 end

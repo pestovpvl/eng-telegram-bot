@@ -60,7 +60,13 @@ class BotApp
          ActiveRecord::StatementInvalid,
          ActiveRecord::ConnectionNotEstablished => e
     warn "Error in handle_message: #{e.class}: #{e.message}"
-    @bot.api.send_message(chat_id: message.chat.id, text: 'Произошла непредвиденная ошибка. Попробуйте повторить команду позже. Если проблема сохраняется, отправьте /start.')
+    error_message =
+      if text.start_with?('/start')
+        'Произошла непредвиденная ошибка. Попробуйте повторить команду позже. Если проблема сохраняется, откройте приложение заново или свяжитесь с поддержкой.'
+      else
+        'Произошла непредвиденная ошибка. Попробуйте повторить команду позже. Если проблема сохраняется, отправьте /start.'
+      end
+    @bot.api.send_message(chat_id: message.chat.id, text: error_message)
   end
 
   def handle_callback(query)
@@ -142,7 +148,10 @@ class BotApp
         user.update!(daily_goal: goal)
         @bot.api.send_message(chat_id: message.chat.id, text: "Цель установлена: #{user.daily_goal_value} слов в день")
       else
-        @bot.api.send_message(chat_id: message.chat.id, text: "Некорректное значение цели. Используй /goal N, где N — целое число от 0 до #{MAX_DAILY_GOAL}.")
+        @bot.api.send_message(
+          chat_id: message.chat.id,
+          text: "Некорректное значение цели. Используй /goal N, где N — целое число от 0 до #{MAX_DAILY_GOAL}."
+        )
       end
     else
       @bot.api.send_message(chat_id: message.chat.id, text: "Текущая цель: #{user.daily_goal_value}. Используй /goal 20")
@@ -231,9 +240,10 @@ class BotApp
       return answer_callback(query, 'Не удалось сохранить прогресс, попробуйте ещё раз')
     end
 
+    reviewed_at = Time.now.utc
     success = result == 'correct'
-    success ? user_word.remember! : user_word.forget!
-    ReviewEvent.create!(user: user, word: word, success: success, viewed_at: Time.now.utc)
+    success ? user_word.remember!(reviewed_at) : user_word.forget!(reviewed_at)
+    ReviewEvent.create!(user: user, word: word, success: success, viewed_at: reviewed_at)
 
     answer_callback(query, success ? 'Отмечено как правильно' : 'Отмечено как неправильно')
     send_next_card(query.message.chat.id, user)
@@ -321,16 +331,23 @@ class BotApp
   end
 
   def find_or_create_user(from)
-    user = User.find_or_initialize_by(telegram_id: from.id)
-    user.assign_attributes(
-      username: from.username,
-      first_name: from.first_name,
-      last_name: from.last_name,
-      locale: from.language_code
-    )
-    user.daily_goal = User::DEFAULT_DAILY_GOAL if user.new_record? && user.daily_goal.nil?
-    user.save! if user.changed?
-    user
+    attempts = 0
+    begin
+      user = User.find_or_initialize_by(telegram_id: from.id)
+      user.assign_attributes(
+        username: from.username,
+        first_name: from.first_name,
+        last_name: from.last_name,
+        locale: from.language_code
+      )
+      user.daily_goal = User::DEFAULT_DAILY_GOAL if user.new_record? && user.daily_goal.nil?
+      user.save! if user.changed?
+      user
+    rescue ActiveRecord::RecordNotUnique
+      attempts += 1
+      retry if attempts < 3
+      raise
+    end
   end
 
   def ensure_default_packs
@@ -348,7 +365,7 @@ class BotApp
       Pack.find_or_create_by(code: attrs[:code]) do |pack|
         pack.name = attrs[:name]
       end
-    rescue ActiveRecord::ActiveRecordError => e
+    rescue ActiveRecord::Error => e
       warn "Failed to ensure default pack #{attrs[:code]}: #{e.class}: #{e.message}"
     end
   end
