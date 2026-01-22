@@ -15,6 +15,16 @@ class ModelsLeitnerBoxTest < Minitest::Test
     refute_empty dup.errors[:repeat_period]
   end
 
+  def test_repeat_period_presence_and_positive
+    missing = LeitnerBox.new(user: @user, repeat_period: nil)
+    refute missing.valid?
+    refute_empty missing.errors[:repeat_period]
+
+    zero = LeitnerBox.new(user: @user, repeat_period: 0)
+    refute zero.valid?
+    refute_empty zero.errors[:repeat_period]
+  end
+
   def test_next_box_returns_next_by_repeat_period
     boxes = @user.leitner_boxes.order(:repeat_period).to_a
     first = boxes.first

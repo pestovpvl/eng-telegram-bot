@@ -10,7 +10,7 @@ class ModelsUserWordValidationsTest < Minitest::Test
     @box = @user.leitner_boxes.first
   end
 
-  def test_requires_foreign_keys_and_show_count
+  def test_requires_foreign_keys_and_show_count_presence
     user_word = UserWord.new
     refute user_word.valid?
     refute_empty user_word.errors[:user_id]
