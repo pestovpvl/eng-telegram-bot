@@ -3,6 +3,8 @@ class UserWord < ActiveRecord::Base
   belongs_to :word
   belongs_to :leitner_box
 
+  before_validation :ensure_defaults
+
   validates :user_id, presence: true, uniqueness: { scope: :word_id }
   validates :word_id, :leitner_box_id, :show_count, presence: true
   validates :show_count, numericality: { greater_than_or_equal_to: 0 }
@@ -25,5 +27,12 @@ class UserWord < ActiveRecord::Base
   def forget!(reviewed_at = nil)
     reviewed_at ||= Time.now.utc
     update!(leitner_box: LeitnerBox.first_box(user), last_reviewed_at: reviewed_at)
+  end
+
+  private
+
+  def ensure_defaults
+    self.show_count = 0 if show_count.nil?
+    self.learned = false if learned.nil?
   end
 end
