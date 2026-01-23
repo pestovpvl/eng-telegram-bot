@@ -7,8 +7,8 @@ class CreateUsers < ActiveRecord::Migration[7.1]
       t.string :last_name
       t.string :locale
       t.integer :daily_goal
-      t.references :current_pack, foreign_key: { to_table: :packs }, type: :bigint
-      t.references :current_word, foreign_key: { to_table: :words }, type: :bigint
+      t.bigint :current_pack_id
+      t.bigint :current_word_id
 
       t.timestamps
     end
