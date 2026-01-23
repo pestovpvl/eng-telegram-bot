@@ -233,6 +233,8 @@ class BotApp
     user_word = begin
       UserWord.find_or_create_by!(user: user, word: word) do |uw|
         uw.leitner_box = LeitnerBox.first_box(user)
+        uw.show_count = 0
+        uw.learned = false
       end
     rescue ActiveRecord::RecordNotUnique
       UserWord.find_by!(user: user, word: word)
@@ -351,6 +353,7 @@ class BotApp
   end
 
   def ensure_default_packs
+    return unless ActiveRecord::Base.connection.data_source_exists?('packs')
     return if Pack.exists?
 
     default_packs = [
