@@ -79,6 +79,8 @@ class BotApp
     when 'pack'
       pack = Pack.find_by(id: payload.to_i)
       if pack
+        UserWord.joins(:word).where(user: user, words: { pack_id: pack.id }).delete_all
+        user.update!(current_word: nil)
         user.update!(current_pack: pack)
         answer_callback(query, "Пакет выбран: #{pack.name}")
         send_next_card(query.message.chat.id, user)
