@@ -106,6 +106,21 @@ Run tests inside the container:
 docker compose run --rm app bundle exec ruby -Itest test/*_test.rb
 ```
 
+### Docker word pack imports
+
+If you keep the CSVs in `data/words/`, you can run these helper scripts:
+
+```bash
+bin/import_top500_docker.sh
+bin/import_top1000_docker.sh
+bin/import_top2000_docker.sh
+bin/import_function_words_docker.sh
+bin/import_content_words_docker.sh
+```
+
+Each script runs the matching `docker compose run --rm app bundle exec rake "import:words[...]"` command
+inside the container.
+
 Note: This project expects PostgreSQL (interval arithmetic and random ordering use PostgreSQL syntax).
 
 If tests fail with "database does not exist", recreate the db volume so the init script runs:
