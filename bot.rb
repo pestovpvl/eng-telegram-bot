@@ -79,7 +79,7 @@ class BotApp
     when 'pack'
       pack = Pack.find_by(id: payload.to_i)
       if pack
-        UserWord.joins(:word).where(user: user, words: { pack_id: pack.id }).delete_all
+        UserWord.where(user: user, word_id: pack.words.select(:id)).delete_all
         user.update!(current_word: nil)
         user.update!(current_pack: pack)
         answer_callback(query, "Пакет выбран: #{pack.name}")
@@ -207,6 +207,10 @@ class BotApp
   def reveal_answer(query, user, word_id)
     word = Word.find_by(id: word_id)
     return answer_callback(query, 'Слово не найдено') unless word
+    return answer_callback(query, 'Это старая карточка. Открой текущую через /learn') if user.current_word_id && user.current_word_id != word.id
+    if user.current_pack_id && word.pack_id != user.current_pack_id
+      return answer_callback(query, 'Эта карточка из другого набора. Выбери новый через /pack')
+    end
 
     translation_line = "Ответ: #{word.russian}"
     definition_line = word.definition.to_s.strip.empty? ? nil : "\nОпределение: #{word.definition}"
@@ -231,6 +235,10 @@ class BotApp
     result, word_id = payload.split(':', 2)
     word = Word.find_by(id: word_id.to_i)
     return answer_callback(query, 'Слово не найдено') unless word
+    return answer_callback(query, 'Это старая карточка. Открой текущую через /learn') if user.current_word_id && user.current_word_id != word.id
+    if user.current_pack_id && word.pack_id != user.current_pack_id
+      return answer_callback(query, 'Эта карточка из другого набора. Выбери новый через /pack')
+    end
 
     user_word = begin
       UserWord.find_or_create_by!(user: user, word: word) do |uw|
