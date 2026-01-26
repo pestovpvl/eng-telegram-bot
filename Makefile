@@ -1,7 +1,7 @@
 WORDS_DIR ?= data/words
 # Expected filenames: top500.csv, top1000.csv, top2000.csv, function_words*.csv, content_words*.csv.
 
-.PHONY: import-all import-all-local
+.PHONY: import-all import-all-local delete-all delete-all-local
 
 import-all:
 	@if [ -f /.dockerenv ]; then \
@@ -27,3 +27,13 @@ import-all-local:
 		task=$$(printf 'import:words[%s,%s]' "$$pack" "$$file"); \
 		bundle exec rake "$$task"; \
 	done
+
+delete-all:
+	@if [ -f /.dockerenv ]; then \
+		$(MAKE) delete-all-local; \
+	else \
+		docker compose exec app make delete-all-local; \
+	fi
+
+delete-all-local:
+	bundle exec ruby -e "require './config/environment'; User.update_all(current_word_id: nil); ReviewEvent.delete_all; UserWord.delete_all; Word.delete_all"

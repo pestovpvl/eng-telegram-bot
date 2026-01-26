@@ -133,6 +133,12 @@ To import all packs in one go via Docker:
 docker compose exec app make import-all
 ```
 
+To delete all words and progress (use with care):
+
+```bash
+make delete-all
+```
+
 Note: This project expects PostgreSQL (interval arithmetic and random ordering use PostgreSQL syntax).
 
 If tests fail with "database does not exist", recreate the db volume so the init script runs:
