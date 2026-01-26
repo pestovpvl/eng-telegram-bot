@@ -41,6 +41,12 @@ You can also import everything in `data/words/` at once:
 make import-all
 ```
 
+If you're running the app via Docker, run the same command inside the container:
+
+```bash
+docker compose exec app make import-all
+```
+
 5. Start the bot:
 
 ```bash
@@ -120,6 +126,12 @@ bin/import_content_words_docker.sh
 
 Each script runs the matching `docker compose run --rm app bundle exec rake "import:words[...]"` command
 inside the container.
+
+To import all packs in one go via Docker:
+
+```bash
+docker compose exec app make import-all
+```
 
 Note: This project expects PostgreSQL (interval arithmetic and random ordering use PostgreSQL syntax).
 
